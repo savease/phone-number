@@ -35,11 +35,34 @@ class PhoneNumber implements PhoneNumberInterface
     }
 
     /**
+     * Returns true if a phone number is valid, false otherwise.
+     *
+     * @param string $phoneNumber The phone number.
+     *
+     * @return bool True if phone number is valid, false otherwise.
+     */
+    public static function isValid($phoneNumber)
+    {
+        if ($phoneNumber === '') {
+            return false;
+        }
+
+        // fixme: better rules and unit tests
+        if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Parses the phone number.
      *
      * @param string $phoneNumber The phone number.
      *
      * @return PhoneNumber The parsed phone number.
+     *
+     * @throws \InvalidArgumentException If parsing failed.
      */
     public static function parse($phoneNumber)
     {
@@ -50,6 +73,27 @@ class PhoneNumber implements PhoneNumberInterface
         // fixme: better rules and unit tests
         if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
             throw new \InvalidArgumentException('Phone number "' . $phoneNumber . '" is invalid');
+        }
+
+        return new self($phoneNumber);
+    }
+
+    /**
+     * Tries to parse a phone number and return null if parsing failed.
+     *
+     * @param string $phoneNumber The phone number.
+     *
+     * @return PhoneNumber|null The phone number or null if parsing failed.
+     */
+    public static function tryParse($phoneNumber)
+    {
+        if ($phoneNumber === '') {
+            return null;
+        }
+
+        // fixme: better rules and unit tests
+        if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
+            return null;
         }
 
         return new self($phoneNumber);
