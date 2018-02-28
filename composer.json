@@ -1,0 +1,33 @@
+{
+  "name": "savea/phone-number",
+  "description": "Phone number class",
+  "homepage": "https://savea.se/",
+  "license": "MIT",
+  "keywords": [
+    "phone",
+    "number",
+    "cellular"
+  ],
+  "authors": [
+    {
+      "name": "SAVEA",
+      "homepage": "https://savea.se/"
+    }
+  ],
+  "require": {
+    "php": ">=5.6"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~5.5||~6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Savea\\PhoneNumber\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Savea\\PhoneNumber\\Tests\\": "tests"
+    }
+  }
+}
