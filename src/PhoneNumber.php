@@ -43,16 +43,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function isValid($phoneNumber)
     {
-        if ($phoneNumber === '') {
-            return false;
-        }
-
-        // fixme: better rules and unit tests
-        if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
-            return false;
-        }
-
-        return true;
+        return self::doParse($phoneNumber);
     }
 
     /**
@@ -66,13 +57,8 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function parse($phoneNumber)
     {
-        if ($phoneNumber === '') {
-            throw new \InvalidArgumentException('Phone number can not be empty');
-        }
-
-        // fixme: better rules and unit tests
-        if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
-            throw new \InvalidArgumentException('Phone number "' . $phoneNumber . '" is invalid');
+        if (!self::doParse($phoneNumber, $error)) {
+            throw new \InvalidArgumentException($error);
         }
 
         return new self($phoneNumber);
@@ -87,12 +73,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function tryParse($phoneNumber)
     {
-        if ($phoneNumber === '') {
-            return null;
-        }
-
-        // fixme: better rules and unit tests
-        if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
+        if (!self::doParse($phoneNumber)) {
             return null;
         }
 
@@ -107,6 +88,32 @@ class PhoneNumber implements PhoneNumberInterface
     private function __construct($phoneNumber)
     {
         $this->phoneNumber = $phoneNumber;
+    }
+
+    /**
+     * Tries to parse a phone number and returns true if successful, false otherwise.
+     *
+     * @param string      $phoneNumber The phone number to parse.
+     * @param string|null $error       The error if parse failed.
+     *
+     * @return bool True if successful or false.
+     */
+    private static function doParse($phoneNumber, &$error = null)
+    {
+        if ($phoneNumber === '') {
+            $error = 'Phone number can not be empty';
+
+            return false;
+        }
+
+        // fixme: better rules and unit tests
+        if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
+            $error = 'Phone number "' . $phoneNumber . '" is invalid';
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
