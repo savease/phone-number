@@ -8,13 +8,13 @@ namespace Savea\PhoneNumber;
 class PhoneNumber implements PhoneNumberInterface
 {
     /**
-     * Returns the phone number as a string.
+     * Returns the country code.
      *
-     * @return string The phone number as a string.
+     * @return int The country code.
      */
-    public function __toString()
+    public function getCountryCode()
     {
-        return trim($this->phoneNumber);
+        return $this->countryCode;
     }
 
     /**
@@ -24,14 +24,17 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function toMSISDN()
     {
-        $result = preg_replace('/[^0-9]/', '', $this->phoneNumber);
+        return $this->countryCode . $this->localNumber;
+    }
 
-        if ($this->phoneNumber[0] === '0') {
-            // Phone number does not include country code.
-            $result = '46' . substr($result, 1);
-        }
-
-        return $result;
+    /**
+     * Returns the phone number as a string.
+     *
+     * @return string The phone number as a string.
+     */
+    public function __toString()
+    {
+        return '+' . $this->countryCode . ' ' . $this->localNumber;
     }
 
     /**
@@ -57,11 +60,11 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function parse($phoneNumber)
     {
-        if (!self::doParse($phoneNumber, $error)) {
+        if (!self::doParse($phoneNumber, $countryCode, $localNumber, $error)) {
             throw new \InvalidArgumentException($error);
         }
 
-        return new self($phoneNumber);
+        return new self($countryCode, $localNumber);
     }
 
     /**
@@ -73,51 +76,75 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function tryParse($phoneNumber)
     {
-        if (!self::doParse($phoneNumber)) {
+        if (!self::doParse($phoneNumber, $countryCode, $localNumber)) {
             return null;
         }
 
-        return new self($phoneNumber);
+        return new self($countryCode, $localNumber);
     }
 
     /**
      * PhoneNumber constructor.
      *
-     * @param string $phoneNumber The phone number.
+     * @param int    $countryCode The country code.
+     * @param string $localNumber The local number.
      */
-    private function __construct($phoneNumber)
+    private function __construct($countryCode, $localNumber)
     {
-        $this->phoneNumber = $phoneNumber;
+        $this->countryCode = $countryCode;
+        $this->localNumber = $localNumber;
     }
 
     /**
      * Tries to parse a phone number and returns true if successful, false otherwise.
      *
      * @param string      $phoneNumber The phone number to parse.
+     * @param int|null    $countryCode The parsed country code.
+     * @param string|null $localNumber The parsed local number.
      * @param string|null $error       The error if parse failed.
      *
      * @return bool True if successful or false.
      */
-    private static function doParse($phoneNumber, &$error = null)
+    private static function doParse($phoneNumber, &$countryCode = null, &$localNumber = null, &$error = null)
     {
+        $phoneNumber = trim($phoneNumber);
+
         if ($phoneNumber === '') {
             $error = 'Phone number can not be empty';
 
             return false;
         }
 
-        // fixme: better rules and unit tests
         if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
             $error = 'Phone number "' . $phoneNumber . '" is invalid';
 
             return false;
         }
 
+        if (substr($phoneNumber, 0, 2) === '00') {
+            // Number starting with '00'...
+            $countryCode = intval(substr($phoneNumber, 2, 2)); // fixme: country code is not always 2 characters.
+            $localNumber = substr($phoneNumber, 4);
+        } elseif (substr($phoneNumber, 0, 1) === '+') {
+            // Number starting with '+'...
+            $countryCode = intval(substr($phoneNumber, 1, 2)); // fixme: country code is not always 2 characters.
+            $localNumber = substr($phoneNumber, 3);
+        } else {
+            $countryCode = 46;
+            $localNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+            $localNumber = ltrim($localNumber, '0');
+        }
+
         return true;
     }
 
     /**
-     * @var string My phone number.
+     * @var int The country code.
      */
-    private $phoneNumber;
+    private $countryCode;
+
+    /**
+     * @var string The local number.
+     */
+    private $localNumber;
 }

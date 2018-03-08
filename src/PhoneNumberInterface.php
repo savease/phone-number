@@ -8,6 +8,13 @@ namespace Savea\PhoneNumber;
 interface PhoneNumberInterface
 {
     /**
+     * Returns the country code.
+     *
+     * @return int The country code.
+     */
+    public function getCountryCode();
+
+    /**
      * Returns the phone number as an MSISDN.
      *
      * @return string The phone number as an MSISDN.

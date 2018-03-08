@@ -18,17 +18,20 @@ class PhoneNumberTest extends TestCase
      * @param string $phoneNumber         The phone number.
      * @param string $expectedStringValue The expected string value.
      * @param string $expectedMSISDN      The expected MSISDN value.
+     * @param int    $expectedCountryCode The expected country code.
      */
-    public function testParseValidPhoneNumber($phoneNumber, $expectedStringValue, $expectedMSISDN)
+    public function testParseValidPhoneNumber($phoneNumber, $expectedStringValue, $expectedMSISDN, $expectedCountryCode)
     {
         $phoneNumber1 = PhoneNumber::parse($phoneNumber);
         $phoneNumber2 = PhoneNumber::tryParse($phoneNumber);
 
         self::assertSame($expectedStringValue, $phoneNumber1->__toString());
         self::assertSame($expectedMSISDN, $phoneNumber1->toMSISDN());
+        self::assertSame($expectedCountryCode, $phoneNumber1->getCountryCode());
 
         self::assertSame($expectedStringValue, $phoneNumber2->__toString());
         self::assertSame($expectedMSISDN, $phoneNumber2->toMSISDN());
+        self::assertSame($expectedCountryCode, $phoneNumber2->getCountryCode());
 
         self::assertTrue(PhoneNumber::isValid($phoneNumber));
     }
@@ -42,10 +45,13 @@ class PhoneNumberTest extends TestCase
     {
         return [
             // fixme: String value should be '+46 480 42 40 00' for all these test cases
-            ['0480 42 40 00', '0480 42 40 00', '46480424000'],
-            ['0480 424000', '0480 424000', '46480424000'],
-            ['0480424000', '0480424000', '46480424000'],
-            ['+46480424000', '+46480424000', '46480424000'],
+            ['0480 42 40 00', '+46 480424000', '46480424000', 46],
+            ['0480 424000', '+46 480424000', '46480424000', 46],
+            ['0480424000', '+46 480424000', '46480424000', 46],
+            ['0046480424000', '+46 480424000', '46480424000', 46],
+            ['+46480424000', '+46 480424000', '46480424000', 46],
+
+            
         ];
     }
 
@@ -80,6 +86,7 @@ class PhoneNumberTest extends TestCase
     {
         return [
             ['', 'Phone number can not be empty'],
+            [' ', 'Phone number can not be empty'],
             ['FooBar', 'Phone number "FooBar" is invalid'],
         ];
     }
