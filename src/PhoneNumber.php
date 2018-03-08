@@ -121,21 +121,57 @@ class PhoneNumber implements PhoneNumberInterface
             return false;
         }
 
-        if (substr($phoneNumber, 0, 2) === '00') {
-            // Number starting with '00'...
-            $countryCode = intval(substr($phoneNumber, 2, 2)); // fixme: country code is not always 2 characters.
-            $localNumber = substr($phoneNumber, 4);
-        } elseif (substr($phoneNumber, 0, 1) === '+') {
-            // Number starting with '+'...
-            $countryCode = intval(substr($phoneNumber, 1, 2)); // fixme: country code is not always 2 characters.
-            $localNumber = substr($phoneNumber, 3);
-        } else {
-            $countryCode = 46;
-            $localNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
-            $localNumber = ltrim($localNumber, '0');
-        }
+        $countryCode = self::doParseCountryCode($phoneNumber);
+        $localNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
 
         return true;
+    }
+
+    /**
+     * Parses the country code.
+     *
+     * @param string $phoneNumber The phone number. This will be modified to contain the phone number excluding country code.
+     *
+     * @return int The country code.
+     */
+    private static function doParseCountryCode(&$phoneNumber)
+    {
+        $hasCountryCode = false;
+
+        if (substr($phoneNumber, 0, 1) === '+') {
+            $phoneNumber = substr($phoneNumber, 1);
+            $hasCountryCode = true;
+        } elseif (substr($phoneNumber, 0, 2) === '00') {
+            $phoneNumber = substr($phoneNumber, 2);
+            $hasCountryCode = true;
+        }
+
+        if (!$hasCountryCode) {
+            $phoneNumber = ltrim($phoneNumber, '0');
+
+            return 46;
+        }
+
+        $validCountryCodes = ['46']; // fixme: more
+
+        foreach ($validCountryCodes as $validCountryCode) {
+            $countryCodeLength = strlen($validCountryCode);
+
+            if (substr($phoneNumber, 0, $countryCodeLength) === $validCountryCode) {
+                $phoneNumber = substr($phoneNumber, $countryCodeLength);
+                $phoneNumber = ltrim($phoneNumber, '0');
+
+                return intval($validCountryCode);
+            }
+        }
+
+        // There was a country code that is not yet handled.
+        // In the future this might generate an error, but for now just use the first 2 digits.
+        $countryCode = intval(substr($phoneNumber, 0, 2));
+        $phoneNumber = substr($phoneNumber, 2);
+        $phoneNumber = ltrim($phoneNumber, '0');
+
+        return $countryCode;
     }
 
     /**
