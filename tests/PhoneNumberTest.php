@@ -11,55 +11,76 @@ use Savea\PhoneNumber\PhoneNumber;
 class PhoneNumberTest extends TestCase
 {
     /**
-     * Test a valid phone number.
-     */
-    public function testValidPhoneNumber()
-    {
-        $phoneNumber = PhoneNumber::parse('048055555');
-
-        self::assertSame('048055555', $phoneNumber->__toString());
-        self::assertSame('4648055555', $phoneNumber->toMSISDN());
-    }
-
-    /**
-     * Test empty phone number.
+     * Test parse valid phone number.
      *
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Phone number can not be empty
-     */
-    public function testEmptyPhoneNumber()
-    {
-        PhoneNumber::parse('');
-    }
-
-    /**
-     * Test invalid phone number.
+     * @dataProvider parseValidPhoneNumberProvider
      *
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Phone number "FooBar" is invalid
+     * @param string $phoneNumber         The phone number.
+     * @param string $expectedStringValue The expected string value.
+     * @param string $expectedMSISDN      The expected MSISDN value.
      */
-    public function testInvalidPhoneNumber()
+    public function testParseValidPhoneNumber($phoneNumber, $expectedStringValue, $expectedMSISDN)
     {
-        PhoneNumber::parse('FooBar');
+        $phoneNumber1 = PhoneNumber::parse($phoneNumber);
+        $phoneNumber2 = PhoneNumber::tryParse($phoneNumber);
+
+        self::assertSame($expectedStringValue, $phoneNumber1->__toString());
+        self::assertSame($expectedMSISDN, $phoneNumber1->toMSISDN());
+
+        self::assertSame($expectedStringValue, $phoneNumber2->__toString());
+        self::assertSame($expectedMSISDN, $phoneNumber2->toMSISDN());
+
+        self::assertTrue(PhoneNumber::isValid($phoneNumber));
     }
 
     /**
-     * Test tryParse method.
+     * Data provider for parse valid phone number tests.
+     *
+     * @return array The data.
      */
-    public function testTryParse()
+    public function parseValidPhoneNumberProvider()
     {
-        self::assertNull(PhoneNumber::tryParse(''));
-        self::assertNull(PhoneNumber::tryParse('foobar'));
-        self::assertSame('4648055555', PhoneNumber::tryParse('048055555')->toMSISDN());
+        return [
+            // fixme: String value should be '+46 480 42 40 00' for all these test cases
+            ['0480 42 40 00', '0480 42 40 00', '46480424000'],
+            ['0480 424000', '0480 424000', '46480424000'],
+            ['0480424000', '0480424000', '46480424000'],
+            ['+46480424000', '+46480424000', '46480424000'],
+        ];
     }
 
     /**
-     * Test isValid method.
+     * Test parse invalid phone number.
+     *
+     * @dataProvider invalidPhoneNumberDataProvider
+     *
+     * @param string $phoneNumber   The phone number.
+     * @param string $expectedError The expected error.
      */
-    public function testIsValid()
+    public function testParseInvalidPhoneNumber($phoneNumber, $expectedError)
     {
-        self::assertFalse(PhoneNumber::isValid(''));
-        self::assertFalse(PhoneNumber::isValid('foobar'));
-        self::assertTrue(PhoneNumber::isValid('048055555'));
+        $error = null;
+        try {
+            PhoneNumber::parse($phoneNumber);
+        } catch (\InvalidArgumentException $exception) {
+            $error = $exception->getMessage();
+        }
+
+        self::assertSame($expectedError, $error);
+        self::assertNull(PhoneNumber::tryParse($phoneNumber));
+        self::assertFalse(PhoneNumber::isValid($phoneNumber));
+    }
+
+    /**
+     * Data provider for invalid phone number tests.
+     *
+     * @return array The data.
+     */
+    public function invalidPhoneNumberDataProvider()
+    {
+        return [
+            ['', 'Phone number can not be empty'],
+            ['FooBar', 'Phone number "FooBar" is invalid'],
+        ];
     }
 }
