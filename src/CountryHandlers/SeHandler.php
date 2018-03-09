@@ -40,6 +40,34 @@ class SeHandler
     }
 
     /**
+     * Formats a number.
+     *
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
+     *
+     * @return string The formatted number.
+     */
+    public function format($areaCode, $localNumber)
+    {
+        switch (strlen($localNumber)) {
+            case 5:
+                $localNumber = substr($localNumber, 0, 3) . ' ' . substr($localNumber, 3);
+                break;
+            case 6:
+                $localNumber = substr($localNumber, 0, 2) . ' ' . substr($localNumber, 2, 2) . ' ' . substr($localNumber, 4, 2);
+                break;
+            case 7:
+                $localNumber = substr($localNumber, 0, 3) . ' ' . substr($localNumber, 3, 2) . ' ' . substr($localNumber, 5, 2);
+                break;
+            case 8:
+                $localNumber = substr($localNumber, 0, 3) . ' ' . substr($localNumber, 3, 3) . ' ' . substr($localNumber, 6, 2);
+                break;
+        }
+
+        return $areaCode . ' ' . $localNumber;
+    }
+
+    /**
      * Returns the length of the area code part for a phone number.
      *
      * @param string $phoneNumber The phone number.

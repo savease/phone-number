@@ -56,6 +56,12 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function __toString()
     {
+        if ($this->countryCode === 46) {
+            $countryHandler = new SeHandler();
+
+            return '+' . $this->countryCode . ' ' . $countryHandler->format($this->areaCode, $this->localNumber);
+        }
+
         return '+' . $this->countryCode . ' ' . $this->areaCode . $this->localNumber;
     }
 
