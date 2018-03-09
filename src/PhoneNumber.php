@@ -2,11 +2,23 @@
 
 namespace Savea\PhoneNumber;
 
+use Savea\PhoneNumber\CountryHandlers\SeHandler;
+
 /**
  * Class PhoneNumber.
  */
 class PhoneNumber implements PhoneNumberInterface
 {
+    /**
+     * Returns the area code.
+     *
+     * @return string The area code.
+     */
+    public function getAreaCode()
+    {
+        return $this->areaCode;
+    }
+
     /**
      * Returns the country code.
      *
@@ -18,13 +30,23 @@ class PhoneNumber implements PhoneNumberInterface
     }
 
     /**
+     * Returns the local number.
+     *
+     * @return string The local number.
+     */
+    public function getLocalNumber()
+    {
+        return $this->localNumber;
+    }
+
+    /**
      * Returns the phone number as an MSISDN.
      *
      * @return string The phone number as an MSISDN.
      */
     public function toMSISDN()
     {
-        return $this->countryCode . $this->localNumber;
+        return $this->countryCode . $this->areaCode . $this->localNumber;
     }
 
     /**
@@ -34,7 +56,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function __toString()
     {
-        return '+' . $this->countryCode . ' ' . $this->localNumber;
+        return '+' . $this->countryCode . ' ' . $this->areaCode . $this->localNumber;
     }
 
     /**
@@ -60,11 +82,11 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function parse($phoneNumber)
     {
-        if (!self::doParse($phoneNumber, $countryCode, $localNumber, $error)) {
+        if (!self::doParse($phoneNumber, $countryCode, $areaCode, $localNumber, $error)) {
             throw new \InvalidArgumentException($error);
         }
 
-        return new self($countryCode, $localNumber);
+        return new self($countryCode, $areaCode, $localNumber);
     }
 
     /**
@@ -76,22 +98,24 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function tryParse($phoneNumber)
     {
-        if (!self::doParse($phoneNumber, $countryCode, $localNumber)) {
+        if (!self::doParse($phoneNumber, $countryCode, $areaCode, $localNumber)) {
             return null;
         }
 
-        return new self($countryCode, $localNumber);
+        return new self($countryCode, $areaCode, $localNumber);
     }
 
     /**
      * PhoneNumber constructor.
      *
      * @param int    $countryCode The country code.
+     * @param string $areaCode    The area code.
      * @param string $localNumber The local number.
      */
-    private function __construct($countryCode, $localNumber)
+    private function __construct($countryCode, $areaCode, $localNumber)
     {
         $this->countryCode = $countryCode;
+        $this->areaCode = $areaCode;
         $this->localNumber = $localNumber;
     }
 
@@ -100,12 +124,13 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @param string      $phoneNumber The phone number to parse.
      * @param int|null    $countryCode The parsed country code.
+     * @param string|null $areaCode    The parsed area code.
      * @param string|null $localNumber The parsed local number.
      * @param string|null $error       The error if parse failed.
      *
      * @return bool True if successful or false.
      */
-    private static function doParse($phoneNumber, &$countryCode = null, &$localNumber = null, &$error = null)
+    private static function doParse($phoneNumber, &$countryCode = null, &$areaCode = null, &$localNumber = null, &$error = null)
     {
         $originalPhoneNumber = $phoneNumber;
         $phoneNumber = preg_replace('/\s+/', '', $phoneNumber);
@@ -123,15 +148,17 @@ class PhoneNumber implements PhoneNumberInterface
         }
 
         if ($countryCode === 46) {
-            $phoneNumber = ltrim($phoneNumber, '0');
+            $handler = new SeHandler();
+            if (!$handler->parse($phoneNumber, $areaCode, $localNumber, $error)) {
+                $error = 'Phone number "' . $originalPhoneNumber . '" is invalid: ' . $error;
+
+                return false;
+            }
+
+            return true;
         }
 
-        if (!preg_match("/^[0-9()+-]+$/", $phoneNumber)) {
-            $error = 'Phone number "' . $originalPhoneNumber . '" is invalid.';
-
-            return false;
-        }
-
+        $areaCode = '';
         $localNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
 
         return true;
@@ -160,6 +187,7 @@ class PhoneNumber implements PhoneNumberInterface
 
         if (!$hasCountryCode) {
             $countryCode = 46;
+            $phoneNumber = ltrim($phoneNumber, '0');
 
             return true;
         }
@@ -173,26 +201,34 @@ class PhoneNumber implements PhoneNumberInterface
                 $countryCode = intval($validCountryCode);
                 $phoneNumber = substr($phoneNumber, $countryCodeLength);
 
-                return intval($validCountryCode);
+                return true;
             }
         }
 
         // There was a country code that is not yet handled.
         // In the future this might generate an error, but for now just use the first 1 digit.
-        $countryCode = intval(substr($phoneNumber, 0, 1));
-        if (!ctype_digit($countryCode)) {
+        $countryCodeCharacter = substr($phoneNumber, 0, 1);
+        if (!ctype_digit($countryCodeCharacter)) {
             $error = 'Country code must begin with a digit.';
+
+            return false;
         }
 
+        $countryCode = intval($countryCodeCharacter);
         $phoneNumber = substr($phoneNumber, 1);
 
-        return $countryCode;
+        return true;
     }
 
     /**
      * @var int The country code.
      */
     private $countryCode;
+
+    /**
+     * @var string The area code.
+     */
+    private $areaCode;
 
     /**
      * @var string The local number.
