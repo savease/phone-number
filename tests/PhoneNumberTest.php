@@ -51,7 +51,7 @@ class PhoneNumberTest extends TestCase
             ['0046480424000', '+46 480424000', '46480424000', 46],
             ['+46480424000', '+46 480424000', '46480424000', 46],
 
-            ['+47 01 23 45 67', '+47 01234567', '4701234567', 47],
+            ['+47 01 23 45 67', '+4 701234567', '4701234567', 4],
         ];
     }
 
@@ -85,9 +85,10 @@ class PhoneNumberTest extends TestCase
     public function invalidPhoneNumberDataProvider()
     {
         return [
-            ['', 'Phone number can not be empty'],
-            [' ', 'Phone number can not be empty'],
-            ['FooBar', 'Phone number "FooBar" is invalid'],
+            ['', 'Phone number can not be empty.'],
+            [' ', 'Phone number can not be empty.'],
+            ['+x12345678', 'Phone number "+x12345678" is invalid: Country code must begin with a digit.'],
+            ['FooBar', 'Phone number "FooBar" is invalid.'],
         ];
     }
 }

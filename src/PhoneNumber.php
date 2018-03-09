@@ -107,21 +107,31 @@ class PhoneNumber implements PhoneNumberInterface
      */
     private static function doParse($phoneNumber, &$countryCode = null, &$localNumber = null, &$error = null)
     {
-        $phoneNumber = trim($phoneNumber);
+        $originalPhoneNumber = $phoneNumber;
+        $phoneNumber = preg_replace('/\s+/', '', $phoneNumber);
 
         if ($phoneNumber === '') {
-            $error = 'Phone number can not be empty';
+            $error = 'Phone number can not be empty.';
 
             return false;
         }
 
-        if (!preg_match("/^[0-9 ()+-]+$/", $phoneNumber)) {
-            $error = 'Phone number "' . $phoneNumber . '" is invalid';
+        if (!self::doParseCountryCode($phoneNumber, $countryCode, $error)) {
+            $error = 'Phone number "' . $originalPhoneNumber . '" is invalid: ' . $error;
 
             return false;
         }
 
-        $countryCode = self::doParseCountryCode($phoneNumber);
+        if ($countryCode === 46) {
+            $phoneNumber = ltrim($phoneNumber, '0');
+        }
+
+        if (!preg_match("/^[0-9()+-]+$/", $phoneNumber)) {
+            $error = 'Phone number "' . $originalPhoneNumber . '" is invalid.';
+
+            return false;
+        }
+
         $localNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
 
         return true;
@@ -130,11 +140,13 @@ class PhoneNumber implements PhoneNumberInterface
     /**
      * Parses the country code.
      *
-     * @param string $phoneNumber The phone number. This will be modified to contain the phone number excluding country code.
+     * @param string      $phoneNumber The phone number. This will be modified to contain the phone number excluding country code.
+     * @param int|null    $countryCode The parsed country code.
+     * @param string|null $error       The error if parse failed.
      *
-     * @return int The country code.
+     * @return bool True if successful, false otherwise.
      */
-    private static function doParseCountryCode(&$phoneNumber)
+    private static function doParseCountryCode(&$phoneNumber, &$countryCode = null, &$error = null)
     {
         $hasCountryCode = false;
 
@@ -147,9 +159,9 @@ class PhoneNumber implements PhoneNumberInterface
         }
 
         if (!$hasCountryCode) {
-            $phoneNumber = ltrim($phoneNumber, '0');
+            $countryCode = 46;
 
-            return 46;
+            return true;
         }
 
         $validCountryCodes = ['46']; // fixme: more
@@ -158,18 +170,21 @@ class PhoneNumber implements PhoneNumberInterface
             $countryCodeLength = strlen($validCountryCode);
 
             if (substr($phoneNumber, 0, $countryCodeLength) === $validCountryCode) {
+                $countryCode = intval($validCountryCode);
                 $phoneNumber = substr($phoneNumber, $countryCodeLength);
-                $phoneNumber = ltrim($phoneNumber, '0');
 
                 return intval($validCountryCode);
             }
         }
 
         // There was a country code that is not yet handled.
-        // In the future this might generate an error, but for now just use the first 2 digits.
-        $countryCode = intval(substr($phoneNumber, 0, 2));
-        $phoneNumber = substr($phoneNumber, 2);
-        $phoneNumber = ltrim($phoneNumber, '0');
+        // In the future this might generate an error, but for now just use the first 1 digit.
+        $countryCode = intval(substr($phoneNumber, 0, 1));
+        if (!ctype_digit($countryCode)) {
+            $error = 'Country code must begin with a digit.';
+        }
+
+        $phoneNumber = substr($phoneNumber, 1);
 
         return $countryCode;
     }
