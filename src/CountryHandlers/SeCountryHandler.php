@@ -2,10 +2,12 @@
 
 namespace Savea\PhoneNumber\CountryHandlers;
 
+use Savea\PhoneNumber\PhoneNumberInterface;
+
 /**
  * Handler for SE country codes.
  */
-class SeHandler
+class SeCountryHandler implements CountryHandlerInterface
 {
     /**
      * Parses a country-specific phone number.
@@ -19,6 +21,9 @@ class SeHandler
      */
     public function parse($phoneNumber, &$areaCode, &$localNumber, &$error)
     {
+        // Let's be nice and accept numbers with loading zeroes.
+        $phoneNumber = ltrim($phoneNumber, '0');
+
         if (preg_match("/[^0-9()+-]/", $phoneNumber, $matches)) {
             $error = 'Phone number contains invalid character "' . $matches[0] . '".';
 
@@ -33,22 +38,24 @@ class SeHandler
         }
 
         $areaCodeLength = self::getAreaCodeLength($phoneNumber);
-        $areaCode = substr($phoneNumber, 0, $areaCodeLength);
+        $areaCode = '0' . substr($phoneNumber, 0, $areaCodeLength);
         $localNumber = substr($phoneNumber, $areaCodeLength);
 
         return true;
     }
 
     /**
-     * Formats a number.
+     * Formats a phone number to international format.
      *
-     * @param string $areaCode    The area code.
-     * @param string $localNumber The local number.
+     * @param PhoneNumberInterface $phoneNumber The phone number.
      *
      * @return string The formatted number.
      */
-    public function format($areaCode, $localNumber)
+    public function formatInternational(PhoneNumberInterface $phoneNumber)
     {
+        $localNumber = $phoneNumber->getLocalNumber();
+        $areaCode = $phoneNumber->getAreaCode();
+
         switch (strlen($localNumber)) {
             case 5:
                 $localNumber = substr($localNumber, 0, 3) . ' ' . substr($localNumber, 3);
@@ -64,7 +71,19 @@ class SeHandler
                 break;
         }
 
-        return $areaCode . ' ' . $localNumber;
+        return substr($areaCode, 1) . ' ' . $localNumber;
+    }
+
+    /**
+     * Formats a phone number to MSISDN format.
+     *
+     * @param PhoneNumberInterface $phoneNumber The phone number.
+     *
+     * @return string The formatted number.
+     */
+    public function formatMSISDN(PhoneNumberInterface $phoneNumber)
+    {
+        return substr($phoneNumber->getAreaCode(), 1) . $phoneNumber->getLocalNumber();
     }
 
     /**

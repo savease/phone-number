@@ -2,8 +2,9 @@
 
 namespace Savea\PhoneNumber;
 
-use Savea\PhoneNumber\CountryHandlers\DefaultHandler;
-use Savea\PhoneNumber\CountryHandlers\SeHandler;
+use Savea\PhoneNumber\CountryHandlers\CountryHandlerInterface;
+use Savea\PhoneNumber\CountryHandlers\DefaultCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\SeCountryHandler;
 
 /**
  * Class PhoneNumber.
@@ -47,7 +48,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function toMSISDN()
     {
-        return $this->countryCode . $this->areaCode . $this->localNumber;
+        return $this->countryCode . $this->countryHandler->formatMSISDN($this);
     }
 
     /**
@@ -57,9 +58,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function __toString()
     {
-        $countryHandler = $this->countryCode === 46 ? new SeHandler() : new DefaultHandler();
-
-        return '+' . $this->countryCode . ' ' . $countryHandler->format($this->areaCode, $this->localNumber);
+        return '+' . $this->countryCode . ' ' . $this->countryHandler->formatInternational($this);
     }
 
     /**
@@ -85,11 +84,11 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function parse($phoneNumber)
     {
-        if (!self::doParse($phoneNumber, $countryCode, $areaCode, $localNumber, $error)) {
+        if (!self::doParse($phoneNumber, $countryHandler, $countryCode, $areaCode, $localNumber, $error)) {
             throw new \InvalidArgumentException($error);
         }
 
-        return new self($countryCode, $areaCode, $localNumber);
+        return new self($countryHandler, $countryCode, $areaCode, $localNumber);
     }
 
     /**
@@ -101,22 +100,24 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function tryParse($phoneNumber)
     {
-        if (!self::doParse($phoneNumber, $countryCode, $areaCode, $localNumber)) {
+        if (!self::doParse($phoneNumber, $countryHandler, $countryCode, $areaCode, $localNumber)) {
             return null;
         }
 
-        return new self($countryCode, $areaCode, $localNumber);
+        return new self($countryHandler, $countryCode, $areaCode, $localNumber);
     }
 
     /**
      * PhoneNumber constructor.
      *
-     * @param int    $countryCode The country code.
-     * @param string $areaCode    The area code.
-     * @param string $localNumber The local number.
+     * @param CountryHandlerInterface $countryHandler The country handler.
+     * @param int                     $countryCode    The country code.
+     * @param string                  $areaCode       The area code.
+     * @param string                  $localNumber    The local number.
      */
-    private function __construct($countryCode, $areaCode, $localNumber)
+    private function __construct(CountryHandlerInterface $countryHandler, $countryCode, $areaCode, $localNumber)
     {
+        $this->countryHandler = $countryHandler;
         $this->countryCode = $countryCode;
         $this->areaCode = $areaCode;
         $this->localNumber = $localNumber;
@@ -125,15 +126,16 @@ class PhoneNumber implements PhoneNumberInterface
     /**
      * Tries to parse a phone number and returns true if successful, false otherwise.
      *
-     * @param string      $phoneNumber The phone number to parse.
-     * @param int|null    $countryCode The parsed country code.
-     * @param string|null $areaCode    The parsed area code.
-     * @param string|null $localNumber The parsed local number.
-     * @param string|null $error       The error if parse failed.
+     * @param string                       $phoneNumber    The phone number to parse.
+     * @param CountryHandlerInterface|null $countryHandler The parsed country handler.
+     * @param int|null                     $countryCode    The parsed country code.
+     * @param string|null                  $areaCode       The parsed area code.
+     * @param string|null                  $localNumber    The parsed local number.
+     * @param string|null                  $error          The error if parse failed.
      *
      * @return bool True if successful or false.
      */
-    private static function doParse($phoneNumber, &$countryCode = null, &$areaCode = null, &$localNumber = null, &$error = null)
+    private static function doParse($phoneNumber, CountryHandlerInterface &$countryHandler = null, &$countryCode = null, &$areaCode = null, &$localNumber = null, &$error = null)
     {
         $originalPhoneNumber = $phoneNumber;
         $phoneNumber = preg_replace('/\s+/', '', $phoneNumber);
@@ -150,7 +152,7 @@ class PhoneNumber implements PhoneNumberInterface
             return false;
         }
 
-        $countryHandler = $countryCode === 46 ? new SeHandler() : new DefaultHandler();
+        $countryHandler = self::getCountryHandler($countryCode);
         if (!$countryHandler->parse($phoneNumber, $areaCode, $localNumber, $error)) {
             $error = 'Phone number "' . $originalPhoneNumber . '" is invalid: ' . $error;
 
@@ -188,13 +190,12 @@ class PhoneNumber implements PhoneNumberInterface
             return true;
         }
 
-        $validCountryCodes = ['46']; // fixme: more
+        foreach (array_keys(self::$countryHandlers) as $countryCode) {
+            $countryCode = strval($countryCode);
+            $countryCodeLength = strlen($countryCode);
 
-        foreach ($validCountryCodes as $validCountryCode) {
-            $countryCodeLength = strlen($validCountryCode);
-
-            if (substr($phoneNumber, 0, $countryCodeLength) === $validCountryCode) {
-                $countryCode = intval($validCountryCode);
+            if (substr($phoneNumber, 0, $countryCodeLength) === $countryCode) {
+                $countryCode = intval($countryCode);
                 $phoneNumber = substr($phoneNumber, $countryCodeLength);
 
                 return true;
@@ -217,6 +218,29 @@ class PhoneNumber implements PhoneNumberInterface
     }
 
     /**
+     * Returns the country handler for a country code.
+     *
+     * @param int $countryCode The country handler.
+     *
+     * @return CountryHandlerInterface The country handler.
+     */
+    private static function getCountryHandler($countryCode)
+    {
+        if (isset(self::$countryHandlers[$countryCode])) {
+            $handlerClass = self::$countryHandlers[$countryCode];
+
+            return new $handlerClass();
+        }
+
+        return new DefaultCountryHandler();
+    }
+
+    /**
+     * @var CountryHandlerInterface The country handler.
+     */
+    private $countryHandler;
+
+    /**
      * @var int The country code.
      */
     private $countryCode;
@@ -230,4 +254,11 @@ class PhoneNumber implements PhoneNumberInterface
      * @var string The local number.
      */
     private $localNumber;
+
+    /**
+     * @var array The country handlers.
+     */
+    private static $countryHandlers = [
+        46 => SeCountryHandler::class,
+    ];
 }
