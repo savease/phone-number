@@ -107,7 +107,9 @@ class PhoneNumberTest extends TestCase
             ['+x12345678', 'Phone number "+x12345678" is invalid: Country code must begin with a digit.'],
             ['FooBar', 'Phone number "FooBar" is invalid: Phone number contains invalid character "F".'],
             ['+46123456', 'Phone number "+46123456" is invalid: Phone number is too short.'],
-            ['+12%34567', 'Phone number "+12%34567" is invalid: Phone number contains invalid character "%".']
+            ['+12%34567', 'Phone number "+12%34567" is invalid: Phone number contains invalid character "%".'],
+            ['+46 08-123 456 789', 'Phone number "+46 08-123 456 789" is invalid: Local part or phone number "123456789" must be between 5 and 8 digits.'],
+            ['+46 0480-12 34', 'Phone number "+46 0480-12 34" is invalid: Local part or phone number "1234" must be between 5 and 8 digits.'],
         ];
     }
 }

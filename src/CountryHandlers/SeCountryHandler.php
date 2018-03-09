@@ -21,9 +21,6 @@ class SeCountryHandler implements CountryHandlerInterface
      */
     public function parse($phoneNumber, &$areaCode, &$localNumber, &$error)
     {
-        // Let's be nice and accept numbers with loading zeroes.
-        $phoneNumber = ltrim($phoneNumber, '0');
-
         if (preg_match("/[^0-9()+-]/", $phoneNumber, $matches)) {
             $error = 'Phone number contains invalid character "' . $matches[0] . '".';
 
@@ -31,6 +28,10 @@ class SeCountryHandler implements CountryHandlerInterface
         }
 
         $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+
+        // Let's be nice and accept numbers with loading zeroes.
+        $phoneNumber = ltrim($phoneNumber, '0');
+
         if (strlen($phoneNumber) < 7) {
             $error = 'Phone number is too short.';
 
@@ -40,6 +41,12 @@ class SeCountryHandler implements CountryHandlerInterface
         $areaCodeLength = self::getAreaCodeLength($phoneNumber);
         $areaCode = '0' . substr($phoneNumber, 0, $areaCodeLength);
         $localNumber = substr($phoneNumber, $areaCodeLength);
+
+        if (strlen($localNumber) < 5 || strlen($localNumber) > 8) {
+            $error = 'Local part or phone number "' . $localNumber . '" must be between 5 and 8 digits.';
+
+            return false;
+        }
 
         return true;
     }
