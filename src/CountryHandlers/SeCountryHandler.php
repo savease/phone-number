@@ -53,9 +53,42 @@ class SeCountryHandler implements CountryHandlerInterface
      */
     public function formatInternational(PhoneNumberInterface $phoneNumber)
     {
-        $localNumber = $phoneNumber->getLocalNumber();
-        $areaCode = $phoneNumber->getAreaCode();
+        return substr($phoneNumber->getAreaCode(), 1) . ' ' . self::formatLocalNumber($phoneNumber->getLocalNumber());
+    }
 
+    /**
+     * Formats a phone number to MSISDN format.
+     *
+     * @param PhoneNumberInterface $phoneNumber The phone number.
+     *
+     * @return string The formatted number.
+     */
+    public function formatMSISDN(PhoneNumberInterface $phoneNumber)
+    {
+        return substr($phoneNumber->getAreaCode(), 1) . $phoneNumber->getLocalNumber();
+    }
+
+    /**
+     * Formats a phone number to national format.
+     *
+     * @param PhoneNumberInterface $phoneNumber The phone number.
+     *
+     * @return string The formatted number.
+     */
+    public function formatNational(PhoneNumberInterface $phoneNumber)
+    {
+        return $phoneNumber->getAreaCode() . '-' . self::formatLocalNumber($phoneNumber->getLocalNumber());
+    }
+
+    /**
+     * Formats a local number.
+     *
+     * @param string $localNumber The local number.
+     *
+     * @return string The formatted local number.
+     */
+    private static function formatLocalNumber($localNumber)
+    {
         switch (strlen($localNumber)) {
             case 5:
                 $localNumber = substr($localNumber, 0, 3) . ' ' . substr($localNumber, 3);
@@ -71,19 +104,7 @@ class SeCountryHandler implements CountryHandlerInterface
                 break;
         }
 
-        return substr($areaCode, 1) . ' ' . $localNumber;
-    }
-
-    /**
-     * Formats a phone number to MSISDN format.
-     *
-     * @param PhoneNumberInterface $phoneNumber The phone number.
-     *
-     * @return string The formatted number.
-     */
-    public function formatMSISDN(PhoneNumberInterface $phoneNumber)
-    {
-        return substr($phoneNumber->getAreaCode(), 1) . $phoneNumber->getLocalNumber();
+        return $localNumber;
     }
 
     /**

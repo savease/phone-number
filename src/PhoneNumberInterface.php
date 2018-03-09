@@ -29,6 +29,13 @@ interface PhoneNumberInterface
     public function getLocalNumber();
 
     /**
+     * Returns the phone number in national format.
+     *
+     * @return string The phone number in national format.
+     */
+    public function toNationalFormat();
+
+    /**
      * Returns the phone number as an MSISDN.
      *
      * @return string The phone number as an MSISDN.

@@ -52,6 +52,16 @@ class PhoneNumber implements PhoneNumberInterface
     }
 
     /**
+     * Returns the phone number in national format.
+     *
+     * @return string The phone number in national format.
+     */
+    public function toNationalFormat()
+    {
+        return $this->countryHandler->formatNational($this);
+    }
+
+    /**
      * Returns the phone number as a string.
      *
      * @return string The phone number as a string.

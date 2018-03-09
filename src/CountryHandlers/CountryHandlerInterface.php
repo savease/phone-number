@@ -38,4 +38,13 @@ interface CountryHandlerInterface
      * @return string The formatted number.
      */
     public function formatMSISDN(PhoneNumberInterface $phoneNumber);
+
+    /**
+     * Formats a phone number to national format.
+     *
+     * @param PhoneNumberInterface $phoneNumber The phone number.
+     *
+     * @return string The formatted number.
+     */
+    public function formatNational(PhoneNumberInterface $phoneNumber);
 }

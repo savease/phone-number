@@ -56,4 +56,16 @@ class DefaultCountryHandler implements CountryHandlerInterface
     {
         return $phoneNumber->getAreaCode() . $phoneNumber->getLocalNumber();
     }
+
+    /**
+     * Formats a phone number to national format.
+     *
+     * @param PhoneNumberInterface $phoneNumber The phone number.
+     *
+     * @return string The formatted number.
+     */
+    public function formatNational(PhoneNumberInterface $phoneNumber)
+    {
+        return $phoneNumber->getAreaCode() . $phoneNumber->getLocalNumber();
+    }
 }
