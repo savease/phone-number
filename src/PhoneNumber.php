@@ -2,6 +2,7 @@
 
 namespace Savea\PhoneNumber;
 
+use Savea\PhoneNumber\CountryHandlers\DefaultHandler;
 use Savea\PhoneNumber\CountryHandlers\SeHandler;
 
 /**
@@ -56,13 +57,9 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function __toString()
     {
-        if ($this->countryCode === 46) {
-            $countryHandler = new SeHandler();
+        $countryHandler = $this->countryCode === 46 ? new SeHandler() : new DefaultHandler();
 
-            return '+' . $this->countryCode . ' ' . $countryHandler->format($this->areaCode, $this->localNumber);
-        }
-
-        return '+' . $this->countryCode . ' ' . $this->areaCode . $this->localNumber;
+        return '+' . $this->countryCode . ' ' . $countryHandler->format($this->areaCode, $this->localNumber);
     }
 
     /**
@@ -153,19 +150,12 @@ class PhoneNumber implements PhoneNumberInterface
             return false;
         }
 
-        if ($countryCode === 46) {
-            $handler = new SeHandler();
-            if (!$handler->parse($phoneNumber, $areaCode, $localNumber, $error)) {
-                $error = 'Phone number "' . $originalPhoneNumber . '" is invalid: ' . $error;
+        $countryHandler = $countryCode === 46 ? new SeHandler() : new DefaultHandler();
+        if (!$countryHandler->parse($phoneNumber, $areaCode, $localNumber, $error)) {
+            $error = 'Phone number "' . $originalPhoneNumber . '" is invalid: ' . $error;
 
-                return false;
-            }
-
-            return true;
+            return false;
         }
-
-        $areaCode = '';
-        $localNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
 
         return true;
     }

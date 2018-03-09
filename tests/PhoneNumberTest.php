@@ -62,6 +62,8 @@ class PhoneNumberTest extends TestCase
             ['08 12345678', '+46 8 123 456 78', '46812345678', 46, '8', '12345678'],
             ['031-1234567', '+46 31 123 45 67', '46311234567', 46, '31', '1234567'],
             ['0701234567', '+46 70 123 45 67', '46701234567', 46, '70', '1234567'],
+
+            // Yet unhandled country codes.
             ['+47 01 23 45 67', '+4 701234567', '4701234567', 4, '', '701234567'],
         ];
     }
@@ -101,6 +103,7 @@ class PhoneNumberTest extends TestCase
             ['+x12345678', 'Phone number "+x12345678" is invalid: Country code must begin with a digit.'],
             ['FooBar', 'Phone number "FooBar" is invalid: Phone number contains invalid character "F".'],
             ['+46123456', 'Phone number "+46123456" is invalid: Phone number is too short.'],
+            ['+12%34567', 'Phone number "+12%34567" is invalid: Phone number contains invalid character "%".']
         ];
     }
 }
