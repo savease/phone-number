@@ -4,6 +4,7 @@ namespace Savea\PhoneNumber;
 
 use Savea\PhoneNumber\CountryHandlers\CountryHandlerInterface;
 use Savea\PhoneNumber\CountryHandlers\DefaultCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\NoCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\SeCountryHandler;
 
 /**
@@ -270,5 +271,6 @@ class PhoneNumber implements PhoneNumberInterface
      */
     private static $countryHandlers = [
         46 => SeCountryHandler::class,
+        47 => NoCountryHandler::class,
     ];
 }
