@@ -2,8 +2,6 @@
 
 namespace Savea\PhoneNumber\CountryHandlers;
 
-use Savea\PhoneNumber\PhoneNumberInterface;
-
 /**
  * Handler for SE country codes.
  */
@@ -54,37 +52,40 @@ class SeCountryHandler implements CountryHandlerInterface
     /**
      * Formats a phone number to international format.
      *
-     * @param PhoneNumberInterface $phoneNumber The phone number.
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
      *
      * @return string The formatted number.
      */
-    public function formatInternational(PhoneNumberInterface $phoneNumber)
+    public function formatInternational($areaCode, $localNumber)
     {
-        return substr($phoneNumber->getAreaCode(), 1) . ' ' . self::formatLocalNumber($phoneNumber->getLocalNumber());
+        return substr($areaCode, 1) . ' ' . self::formatLocalNumber($localNumber);
     }
 
     /**
      * Formats a phone number to MSISDN format.
      *
-     * @param PhoneNumberInterface $phoneNumber The phone number.
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
      *
      * @return string The formatted number.
      */
-    public function formatMSISDN(PhoneNumberInterface $phoneNumber)
+    public function formatMSISDN($areaCode, $localNumber)
     {
-        return substr($phoneNumber->getAreaCode(), 1) . $phoneNumber->getLocalNumber();
+        return substr($areaCode, 1) . $localNumber;
     }
 
     /**
      * Formats a phone number to national format.
      *
-     * @param PhoneNumberInterface $phoneNumber The phone number.
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
      *
      * @return string The formatted number.
      */
-    public function formatNational(PhoneNumberInterface $phoneNumber)
+    public function formatNational($areaCode, $localNumber)
     {
-        return $phoneNumber->getAreaCode() . '-' . self::formatLocalNumber($phoneNumber->getLocalNumber());
+        return $areaCode . '-' . self::formatLocalNumber($localNumber);
     }
 
     /**

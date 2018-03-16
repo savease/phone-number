@@ -48,7 +48,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function toMSISDN()
     {
-        return $this->countryCode . $this->countryHandler->formatMSISDN($this);
+        return $this->countryCode . $this->countryHandler->formatMSISDN($this->areaCode, $this->localNumber);
     }
 
     /**
@@ -58,7 +58,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function toNationalFormat()
     {
-        return $this->countryHandler->formatNational($this);
+        return $this->countryHandler->formatNational($this->areaCode, $this->localNumber);
     }
 
     /**
@@ -68,7 +68,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function __toString()
     {
-        return '+' . $this->countryCode . ' ' . $this->countryHandler->formatInternational($this);
+        return '+' . $this->countryCode . ' ' . $this->countryHandler->formatInternational($this->areaCode, $this->localNumber);
     }
 
     /**

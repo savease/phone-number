@@ -2,8 +2,6 @@
 
 namespace Savea\PhoneNumber\CountryHandlers;
 
-use Savea\PhoneNumber\PhoneNumberInterface;
-
 /**
  * Default country handler class.
  */
@@ -36,36 +34,39 @@ class DefaultCountryHandler implements CountryHandlerInterface
     /**
      * Formats a phone number to international format.
      *
-     * @param PhoneNumberInterface $phoneNumber The phone number.
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
      *
      * @return string The formatted number.
      */
-    public function formatInternational(PhoneNumberInterface $phoneNumber)
+    public function formatInternational($areaCode, $localNumber)
     {
-        return $phoneNumber->getAreaCode() . $phoneNumber->getLocalNumber();
+        return $areaCode . $localNumber;
     }
 
     /**
      * Formats a phone number to MSISDN format.
      *
-     * @param PhoneNumberInterface $phoneNumber The phone number.
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
      *
      * @return string The formatted number.
      */
-    public function formatMSISDN(PhoneNumberInterface $phoneNumber)
+    public function formatMSISDN($areaCode, $localNumber)
     {
-        return $phoneNumber->getAreaCode() . $phoneNumber->getLocalNumber();
+        return $areaCode . $localNumber;
     }
 
     /**
      * Formats a phone number to national format.
      *
-     * @param PhoneNumberInterface $phoneNumber The phone number.
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
      *
      * @return string The formatted number.
      */
-    public function formatNational(PhoneNumberInterface $phoneNumber)
+    public function formatNational($areaCode, $localNumber)
     {
-        return $phoneNumber->getAreaCode() . $phoneNumber->getLocalNumber();
+        return $areaCode . $localNumber;
     }
 }
