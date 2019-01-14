@@ -48,4 +48,12 @@ interface PhoneNumberInterface
      * @return string The phone number as a string.
      */
     public function __toString();
+
+    /**
+     * Returns the ISO 3166 country code, two letters
+     *
+     * @return string|null  ISO 3166 country code, two letters
+     */
+    public function getISOCountryCode();
+
 }

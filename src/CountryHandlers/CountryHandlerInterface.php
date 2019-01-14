@@ -48,4 +48,11 @@ interface CountryHandlerInterface
      * @return string The formatted number.
      */
     public function formatNational($areaCode, $localNumber);
+
+    /**
+     * Returns the ISO 3166 country code, two letters
+     *
+     * @return string|null  ISO 3166 country code, two letters
+     */
+    public function getISOCountryCode();
 }

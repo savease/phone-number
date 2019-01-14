@@ -4,7 +4,20 @@ namespace Savea\PhoneNumber;
 
 use Savea\PhoneNumber\CountryHandlers\CountryHandlerInterface;
 use Savea\PhoneNumber\CountryHandlers\DefaultCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\AtCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\AuCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\ChCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\CzCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\DkCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\DeCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\EeCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\FiCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\FrCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\GbCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\LvCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\NlCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\NoCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\PlCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\SeCountryHandler;
 
 /**
@@ -95,11 +108,11 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function parse($phoneNumber)
     {
-        if (!self::doParse($phoneNumber, $countryHandler, $countryCode, $areaCode, $localNumber, $error)) {
+        if (!self::doParse($phoneNumber, $countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode, $error)) {
             throw new \InvalidArgumentException($error);
         }
 
-        return new self($countryHandler, $countryCode, $areaCode, $localNumber);
+        return new self($countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode);
     }
 
     /**
@@ -111,42 +124,55 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public static function tryParse($phoneNumber)
     {
-        if (!self::doParse($phoneNumber, $countryHandler, $countryCode, $areaCode, $localNumber)) {
+        if (!self::doParse($phoneNumber, $countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode)) {
             return null;
         }
 
-        return new self($countryHandler, $countryCode, $areaCode, $localNumber);
+        return new self($countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode);
+    }
+
+    /**
+     * Returns the ISO 3166 country code, two letters
+     *
+     * @return string|null  ISO 3166 country code, two letters
+     */
+    public function getISOCountryCode()
+    {
+        return $this->ISOCountryCode;
     }
 
     /**
      * PhoneNumber constructor.
      *
-     * @param CountryHandlerInterface $countryHandler The country handler.
-     * @param int                     $countryCode    The country code.
-     * @param string                  $areaCode       The area code.
-     * @param string                  $localNumber    The local number.
+     * @param CountryHandlerInterface $countryHandler  The country handler.
+     * @param int                     $countryCode     The country code.
+     * @param string                  $areaCode        The area code.
+     * @param string                  $localNumber     The local number.
+     * @param string                  $ISOCountryCode  ISO 3166 country code, two letters.
      */
-    private function __construct(CountryHandlerInterface $countryHandler, $countryCode, $areaCode, $localNumber)
+    private function __construct(CountryHandlerInterface $countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode)
     {
         $this->countryHandler = $countryHandler;
         $this->countryCode = $countryCode;
         $this->areaCode = $areaCode;
         $this->localNumber = $localNumber;
+        $this->ISOCountryCode = $ISOCountryCode;
     }
 
     /**
      * Tries to parse a phone number and returns true if successful, false otherwise.
      *
-     * @param string                       $phoneNumber    The phone number to parse.
-     * @param CountryHandlerInterface|null $countryHandler The parsed country handler.
-     * @param int|null                     $countryCode    The parsed country code.
-     * @param string|null                  $areaCode       The parsed area code.
-     * @param string|null                  $localNumber    The parsed local number.
-     * @param string|null                  $error          The error if parse failed.
+     * @param string                       $phoneNumber     The phone number to parse.
+     * @param CountryHandlerInterface|null $countryHandler  The parsed country handler.
+     * @param int|null                     $countryCode     The parsed country code.
+     * @param string|null                  $areaCode        The parsed area code.
+     * @param string|null                  $localNumber     The parsed local number.
+     * @param string|null                  $error           The error if parse failed.
+     * @param string|null                  $ISOCountryCode  ISO 3166 country code, two letters.
      *
      * @return bool True if successful or false.
      */
-    private static function doParse($phoneNumber, CountryHandlerInterface &$countryHandler = null, &$countryCode = null, &$areaCode = null, &$localNumber = null, &$error = null)
+    private static function doParse($phoneNumber, CountryHandlerInterface &$countryHandler = null, &$countryCode = null, &$areaCode = null, &$localNumber = null, &$ISOCountryCode = null, &$error = null)
     {
         $originalPhoneNumber = $phoneNumber;
         $phoneNumber = preg_replace('/\s+/', '', $phoneNumber);
@@ -169,6 +195,8 @@ class PhoneNumber implements PhoneNumberInterface
 
             return false;
         }
+
+        $ISOCountryCode = $countryHandler->getISOCountryCode();
 
         return true;
     }
@@ -257,6 +285,11 @@ class PhoneNumber implements PhoneNumberInterface
     private $countryCode;
 
     /**
+     * @var string|null The ISO 3166 country code, two letters.
+     */
+    private $ISOCountryCode;
+
+    /**
      * @var string The area code.
      */
     private $areaCode;
@@ -270,7 +303,20 @@ class PhoneNumber implements PhoneNumberInterface
      * @var array The country handlers.
      */
     private static $countryHandlers = [
-        46 => SeCountryHandler::class,
-        47 => NoCountryHandler::class,
+        31  => NlCountryHandler::class,
+        33  => FrCountryHandler::class,
+        358 => FiCountryHandler::class,
+        371 => LvCountryHandler::class,
+        372 => EeCountryHandler::class,
+        39  => AuCountryHandler::class,
+        41  => ChCountryHandler::class,
+        420 => CzCountryHandler::class,
+        43  => AtCountryHandler::class,
+        44  => GbCountryHandler::class,
+        45  => DkCountryHandler::class,
+        46  => SeCountryHandler::class,
+        47  => NoCountryHandler::class,
+        48  => PlCountryHandler::class,
+        49  => DeCountryHandler::class,
     ];
 }

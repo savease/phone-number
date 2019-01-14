@@ -89,6 +89,16 @@ class SeCountryHandler implements CountryHandlerInterface
     }
 
     /**
+     * Returns the ISO 3166 country code, two letters
+     *
+     * @return string|null  ISO 3166 country code, two letters
+     */
+    public function getISOCountryCode()
+    {
+        return 'se';
+    }
+
+    /**
      * Formats a local number.
      *
      * @param string $localNumber The local number.

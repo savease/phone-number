@@ -27,7 +27,7 @@ class NoCountryHandler implements CountryHandlerInterface
 
         $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
 
-        // fixme: handle numbers beginning with 0 or 1.
+        // todo: handle numbers beginning with 0 or 1.
         // https://no.wikipedia.org/wiki/Nummerplan_(E.164)
 
         if (strlen($phoneNumber) !== 8) {
@@ -79,6 +79,16 @@ class NoCountryHandler implements CountryHandlerInterface
     public function formatNational($areaCode, $localNumber)
     {
         return self::formatLocalNumber($localNumber);
+    }
+
+    /**
+     * Returns the ISO 3166 country code, two letters
+     *
+     * @return string|null  ISO 3166 country code, two letters
+     */
+    public function getISOCountryCode()
+    {
+        return 'no';
     }
 
     /**

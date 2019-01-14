@@ -15,15 +15,16 @@ class PhoneNumberTest extends TestCase
      *
      * @dataProvider parseValidPhoneNumberProvider
      *
-     * @param string $phoneNumber            The phone number.
-     * @param string $expectedStringValue    The expected string value.
-     * @param string $expectedNationalFormat The expected national format value.
-     * @param string $expectedMSISDN         The expected MSISDN value.
-     * @param int    $expectedCountryCode    The expected country code.
-     * @param string $expectedAreaCode       The expected area code.
-     * @param string $expectedLocalNumber    The expected local number.
+     * @param string $phoneNumber             The phone number.
+     * @param string $expectedStringValue     The expected string value.
+     * @param string $expectedNationalFormat  The expected national format value.
+     * @param string $expectedMSISDN          The expected MSISDN value.
+     * @param int    $expectedCountryCode     The expected country code.
+     * @param string $expectedAreaCode        The expected area code.
+     * @param string $expectedLocalNumber     The expected local number.
+     * @param string $expectedISOCountryCode  The expected ISO 3166 country code, two letters.
      */
-    public function testParseValidPhoneNumber($phoneNumber, $expectedStringValue, $expectedNationalFormat, $expectedMSISDN, $expectedCountryCode, $expectedAreaCode, $expectedLocalNumber)
+    public function testParseValidPhoneNumber($phoneNumber, $expectedStringValue, $expectedNationalFormat, $expectedMSISDN, $expectedCountryCode, $expectedAreaCode, $expectedLocalNumber, $expectedISOCountryCode)
     {
         $phoneNumber1 = PhoneNumber::parse($phoneNumber);
         $phoneNumber2 = PhoneNumber::tryParse($phoneNumber);
@@ -34,6 +35,7 @@ class PhoneNumberTest extends TestCase
         self::assertSame($expectedCountryCode, $phoneNumber1->getCountryCode());
         self::assertSame($expectedAreaCode, $phoneNumber1->getAreaCode());
         self::assertSame($expectedLocalNumber, $phoneNumber1->getLocalNumber());
+        self::assertSame($expectedISOCountryCode, $phoneNumber1->getISOCountryCode());
 
         self::assertSame($expectedStringValue, $phoneNumber2->__toString());
         self::assertSame($expectedNationalFormat, $phoneNumber2->toNationalFormat());
@@ -41,6 +43,7 @@ class PhoneNumberTest extends TestCase
         self::assertSame($expectedCountryCode, $phoneNumber2->getCountryCode());
         self::assertSame($expectedAreaCode, $phoneNumber2->getAreaCode());
         self::assertSame($expectedLocalNumber, $phoneNumber2->getLocalNumber());
+        self::assertSame($expectedISOCountryCode, $phoneNumber2->getISOCountryCode());
 
         self::assertTrue(PhoneNumber::isValid($phoneNumber));
     }
@@ -54,32 +57,44 @@ class PhoneNumberTest extends TestCase
     {
         return [
             // SE (+46)
-            ['0480 55555', '+46 480 555 55', '0480-555 55', '4648055555', 46, '0480', '55555'],
-            ['0480 42 40 00', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000'],
-            ['0480 424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000'],
-            ['0480424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000'],
-            ['0046480424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000'],
-            ['+46480424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000'],
-            ['+46480424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000'],
-            ['+46 8-1234567', '+46 8 123 45 67', '08-123 45 67', '4681234567', 46, '08', '1234567'],
-            ['08 1234567', '+46 8 123 45 67', '08-123 45 67', '4681234567', 46, '08', '1234567'],
-            ['08 12345678', '+46 8 123 456 78', '08-123 456 78', '46812345678', 46, '08', '12345678'],
-            ['031-1234567', '+46 31 123 45 67', '031-123 45 67', '46311234567', 46, '031', '1234567'],
-            ['0701234567', '+46 70 123 45 67', '070-123 45 67', '46701234567', 46, '070', '1234567'],
-            ['00460701234567', '+46 70 123 45 67', '070-123 45 67', '46701234567', 46, '070', '1234567'],
+            ['0480 55555', '+46 480 555 55', '0480-555 55', '4648055555', 46, '0480', '55555', 'se'],
+            ['0480 42 40 00', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000', 'se'],
+            ['0480 424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000', 'se'],
+            ['0480424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000', 'se'],
+            ['0046480424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000', 'se'],
+            ['+46480424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000', 'se'],
+            ['+46480424000', '+46 480 42 40 00', '0480-42 40 00', '46480424000', 46, '0480', '424000', 'se'],
+            ['+46 8-1234567', '+46 8 123 45 67', '08-123 45 67', '4681234567', 46, '08', '1234567', 'se'],
+            ['08 1234567', '+46 8 123 45 67', '08-123 45 67', '4681234567', 46, '08', '1234567', 'se'],
+            ['08 12345678', '+46 8 123 456 78', '08-123 456 78', '46812345678', 46, '08', '12345678', 'se'],
+            ['031-1234567', '+46 31 123 45 67', '031-123 45 67', '46311234567', 46, '031', '1234567', 'se'],
+            ['0701234567', '+46 70 123 45 67', '070-123 45 67', '46701234567', 46, '070', '1234567', 'se'],
+            ['00460701234567', '+46 70 123 45 67', '070-123 45 67', '46701234567', 46, '070', '1234567', 'se'],
 
             // NO (+47)
-            ['004723456789', '+47 23 45 67 89', '23 45 67 89', '4723456789', 47, '', '23456789'],
-            ['0047 34 56 78 91', '+47 34 56 78 91', '34 56 78 91', '4734567891', 47, '', '34567891'],
-            ['+47 456 78912', '+47 456 78 912', '456 78 912', '4745678912', 47, '', '45678912'],
-            ['+47 56 78 91 23', '+47 56 78 91 23', '56 78 91 23', '4756789123', 47, '', '56789123'],
-            ['+4767891234', '+47 67 89 12 34', '67 89 12 34', '4767891234', 47, '', '67891234'],
-            ['+4778912345', '+47 78 91 23 45', '78 91 23 45', '4778912345', 47, '', '78912345'],
-            ['+47 89 12 34 56', '+47 891 23 456', '891 23 456', '4789123456', 47, '', '89123456'],
-            ['+4791234567', '+47 912 34 567', '912 34 567', '4791234567', 47, '', '91234567'],
+            ['004723456789', '+47 23 45 67 89', '23 45 67 89', '4723456789', 47, '', '23456789', 'no'],
+            ['0047 34 56 78 91', '+47 34 56 78 91', '34 56 78 91', '4734567891', 47, '', '34567891', 'no'],
+            ['+47 456 78912', '+47 456 78 912', '456 78 912', '4745678912', 47, '', '45678912', 'no'],
+            ['+47 56 78 91 23', '+47 56 78 91 23', '56 78 91 23', '4756789123', 47, '', '56789123', 'no'],
+            ['+4767891234', '+47 67 89 12 34', '67 89 12 34', '4767891234', 47, '', '67891234', 'no'],
+            ['+4778912345', '+47 78 91 23 45', '78 91 23 45', '4778912345', 47, '', '78912345', 'no'],
+            ['+47 89 12 34 56', '+47 891 23 456', '891 23 456', '4789123456', 47, '', '89123456', 'no'],
+            ['+4791234567', '+47 912 34 567', '912 34 567', '4791234567', 47, '', '91234567', 'no'],
 
             // Yet unhandled country codes.
-            ['+48 01 23 45 67', '+4 801234567', '801234567', '4801234567', 4, '', '801234567'],
+            ['+31 01 23 45 67', '+31 01234567', '01234567', '3101234567', 31, '', '01234567', 'nl'],
+            ['+33 01 23 45 67', '+33 01234567', '01234567', '3301234567', 33, '', '01234567', 'fr'],
+            ['+358 01 23 45 67', '+358 01234567', '01234567', '35801234567', 358, '', '01234567', 'fi'],
+            ['+371 01 23 45 67', '+371 01234567', '01234567', '37101234567', 371, '', '01234567', 'lv'],
+            ['+372 01 23 45 67', '+372 01234567', '01234567', '37201234567', 372, '', '01234567', 'ee'],
+            ['+39 01 23 45 67', '+39 01234567', '01234567', '3901234567', 39, '', '01234567', 'au'],
+            ['+41 01 23 45 67', '+41 01234567', '01234567', '4101234567', 41, '', '01234567', 'ch'],
+            ['+420 01 23 45 67', '+420 01234567', '01234567', '42001234567', 420, '', '01234567', 'cz'],
+            ['+43 01 23 45 67', '+43 01234567', '01234567', '4301234567', 43, '', '01234567', 'at'],
+            ['+44 01 23 45 67', '+44 01234567', '01234567', '4401234567', 44, '', '01234567', 'gb'],
+            ['+45 01 23 45 67', '+45 01234567', '01234567', '4501234567', 45, '', '01234567', 'dk'],
+            ['+48 01 23 45 67', '+48 01234567', '01234567', '4801234567', 48, '', '01234567', 'pl'],
+            ['+49 01 23 45 67', '+49 01234567', '01234567', '4901234567', 49, '', '01234567', 'de'],
         ];
     }
 
