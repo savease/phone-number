@@ -146,11 +146,11 @@ class PhoneNumber implements PhoneNumberInterface
     /**
      * PhoneNumber constructor.
      *
-     * @param CountryHandlerInterface $countryHandler  The country handler.
-     * @param int                     $countryCode     The country code.
-     * @param string                  $areaCode        The area code.
-     * @param string                  $localNumber     The local number.
-     * @param string                  $ISOCountryCode  ISO 3166 country code, two letters.
+     * @param CountryHandlerInterface $countryHandler The country handler.
+     * @param int                     $countryCode    The country code.
+     * @param string                  $areaCode       The area code.
+     * @param string                  $localNumber    The local number.
+     * @param string                  $ISOCountryCode ISO 3166 country code, two letters.
      */
     private function __construct(CountryHandlerInterface $countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode)
     {
@@ -164,13 +164,13 @@ class PhoneNumber implements PhoneNumberInterface
     /**
      * Tries to parse a phone number and returns true if successful, false otherwise.
      *
-     * @param string                       $phoneNumber     The phone number to parse.
-     * @param CountryHandlerInterface|null $countryHandler  The parsed country handler.
-     * @param int|null                     $countryCode     The parsed country code.
-     * @param string|null                  $areaCode        The parsed area code.
-     * @param string|null                  $localNumber     The parsed local number.
-     * @param string|null                  $error           The error if parse failed.
-     * @param string|null                  $ISOCountryCode  ISO 3166 country code, two letters.
+     * @param string                       $phoneNumber    The phone number to parse.
+     * @param CountryHandlerInterface|null $countryHandler The parsed country handler.
+     * @param int|null                     $countryCode    The parsed country code.
+     * @param string|null                  $areaCode       The parsed area code.
+     * @param string|null                  $localNumber    The parsed local number.
+     * @param string|null                  $error          The error if parse failed.
+     * @param string|null                  $ISOCountryCode ISO 3166 country code, two letters.
      *
      * @return bool True if successful or false.
      */
@@ -231,7 +231,7 @@ class PhoneNumber implements PhoneNumberInterface
             return true;
         }
 
-        foreach (array_keys(self::$countryHandlers) as $countryCode) {
+        foreach (array_keys(self::COUNTRY_HANDLERS) as $countryCode) {
             $countryCode = strval($countryCode);
             $countryCodeLength = strlen($countryCode);
 
@@ -267,8 +267,8 @@ class PhoneNumber implements PhoneNumberInterface
      */
     private static function getCountryHandler($countryCode)
     {
-        if (isset(self::$countryHandlers[$countryCode])) {
-            $handlerClass = self::$countryHandlers[$countryCode];
+        if (isset(self::COUNTRY_HANDLERS[$countryCode])) {
+            $handlerClass = self::COUNTRY_HANDLERS[$countryCode];
 
             return new $handlerClass();
         }
@@ -279,32 +279,32 @@ class PhoneNumber implements PhoneNumberInterface
     /**
      * @var CountryHandlerInterface The country handler.
      */
-    private $countryHandler;
+    private CountryHandlerInterface $countryHandler;
 
     /**
      * @var int The country code.
      */
-    private $countryCode;
+    private int $countryCode;
 
     /**
      * @var string|null The ISO 3166 country code, two letters.
      */
-    private $ISOCountryCode;
+    private ?string $ISOCountryCode;
 
     /**
      * @var string The area code.
      */
-    private $areaCode;
+    private string $areaCode;
 
     /**
      * @var string The local number.
      */
-    private $localNumber;
+    private string $localNumber;
 
     /**
      * @var array The country handlers.
      */
-    private static $countryHandlers = [
+    private const COUNTRY_HANDLERS = [
         31  => NlCountryHandler::class,
         33  => FrCountryHandler::class,
         358 => FiCountryHandler::class,
