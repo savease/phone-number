@@ -72,7 +72,6 @@ class DefaultCountryHandler implements CountryHandlerInterface
         return $areaCode . $localNumber;
     }
 
-    /** @noinspection PhpMissingParentCallMagicInspection */
     /**
      * Returns the ISO 3166 country code, two letters
      *

@@ -57,5 +57,4 @@ interface PhoneNumberInterface
      * @return string|null  ISO 3166 country code, two letters
      */
     public function getISOCountryCode();
-
 }
