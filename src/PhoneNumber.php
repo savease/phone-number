@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Savea\PhoneNumber;
 
 use Savea\PhoneNumber\CountryHandlers\CountryHandlerInterface;

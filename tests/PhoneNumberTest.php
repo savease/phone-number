@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Savea\PhoneNumber\Tests;
 
 use PHPUnit\Framework\TestCase;
