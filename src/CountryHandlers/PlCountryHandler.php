@@ -15,7 +15,7 @@ class PlCountryHandler extends DefaultCountryHandler implements CountryHandlerIn
      *
      * @return string|null  ISO 3166 country code, two letters
      */
-    public function getISOCountryCode()
+    public function getISOCountryCode(): ?string
     {
         return 'pl';
     }

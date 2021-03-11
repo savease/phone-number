@@ -17,17 +17,25 @@ class PhoneNumberTest extends TestCase
      *
      * @dataProvider parseValidPhoneNumberProvider
      *
-     * @param string $phoneNumber             The phone number.
-     * @param string $expectedStringValue     The expected string value.
-     * @param string $expectedNationalFormat  The expected national format value.
-     * @param string $expectedMSISDN          The expected MSISDN value.
-     * @param int    $expectedCountryCode     The expected country code.
-     * @param string $expectedAreaCode        The expected area code.
-     * @param string $expectedLocalNumber     The expected local number.
-     * @param string $expectedISOCountryCode  The expected ISO 3166 country code, two letters.
+     * @param string      $phoneNumber            The phone number.
+     * @param string      $expectedStringValue    The expected string value.
+     * @param string      $expectedNationalFormat The expected national format value.
+     * @param string      $expectedMSISDN         The expected MSISDN value.
+     * @param int         $expectedCountryCode    The expected country code.
+     * @param string      $expectedAreaCode       The expected area code.
+     * @param string      $expectedLocalNumber    The expected local number.
+     * @param string|null $expectedISOCountryCode The expected ISO 3166 country code, two letters.
      */
-    public function testParseValidPhoneNumber($phoneNumber, $expectedStringValue, $expectedNationalFormat, $expectedMSISDN, $expectedCountryCode, $expectedAreaCode, $expectedLocalNumber, $expectedISOCountryCode)
-    {
+    public function testParseValidPhoneNumber(
+        string $phoneNumber,
+        string $expectedStringValue,
+        string $expectedNationalFormat,
+        string $expectedMSISDN,
+        int $expectedCountryCode,
+        string $expectedAreaCode,
+        string $expectedLocalNumber,
+        ?string $expectedISOCountryCode
+    ) {
         $phoneNumber1 = PhoneNumber::parse($phoneNumber);
         $phoneNumber2 = PhoneNumber::tryParse($phoneNumber);
 
@@ -55,7 +63,7 @@ class PhoneNumberTest extends TestCase
      *
      * @return array The data.
      */
-    public function parseValidPhoneNumberProvider()
+    public function parseValidPhoneNumberProvider(): array
     {
         return [
             // SE (+46)
@@ -111,7 +119,7 @@ class PhoneNumberTest extends TestCase
      * @param string $phoneNumber   The phone number.
      * @param string $expectedError The expected error.
      */
-    public function testParseInvalidPhoneNumber($phoneNumber, $expectedError)
+    public function testParseInvalidPhoneNumber(string $phoneNumber, string $expectedError)
     {
         $error = null;
         try {
@@ -130,7 +138,7 @@ class PhoneNumberTest extends TestCase
      *
      * @return array The data.
      */
-    public function invalidPhoneNumberDataProvider()
+    public function invalidPhoneNumberDataProvider(): array
     {
         return [
             ['', 'Phone number can not be empty.'],

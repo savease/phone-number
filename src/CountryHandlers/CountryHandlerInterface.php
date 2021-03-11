@@ -12,14 +12,14 @@ interface CountryHandlerInterface
     /**
      * Parses a country-specific phone number.
      *
-     * @param string $phoneNumber The phone number.
-     * @param string $areaCode    The parsed area code.
-     * @param string $localNumber The parsed local number.
-     * @param string $error       The error i parse failed.
+     * @param string      $phoneNumber The phone number.
+     * @param string|null $areaCode    The parsed area code.
+     * @param string|null $localNumber The parsed local number.
+     * @param string|null $error       The error if parse failed.
      *
      * @return bool True if parse was successful, false otherwise.
      */
-    public function parse($phoneNumber, &$areaCode, &$localNumber, &$error);
+    public function parse(string $phoneNumber, ?string &$areaCode, ?string &$localNumber, ?string &$error): bool;
 
     /**
      * Formats a phone number to international format.
@@ -29,7 +29,7 @@ interface CountryHandlerInterface
      *
      * @return string The formatted number.
      */
-    public function formatInternational($areaCode, $localNumber);
+    public function formatInternational(string $areaCode, string $localNumber): string;
 
     /**
      * Formats a phone number to MSISDN format.
@@ -39,7 +39,7 @@ interface CountryHandlerInterface
      *
      * @return string The formatted number.
      */
-    public function formatMSISDN($areaCode, $localNumber);
+    public function formatMSISDN(string $areaCode, string $localNumber): string;
 
     /**
      * Formats a phone number to national format.
@@ -49,12 +49,12 @@ interface CountryHandlerInterface
      *
      * @return string The formatted number.
      */
-    public function formatNational($areaCode, $localNumber);
+    public function formatNational(string $areaCode, string $localNumber): string;
 
     /**
      * Returns the ISO 3166 country code, two letters
      *
      * @return string|null  ISO 3166 country code, two letters
      */
-    public function getISOCountryCode();
+    public function getISOCountryCode(): ?string;
 }

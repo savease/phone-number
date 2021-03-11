@@ -12,14 +12,14 @@ class SeCountryHandler implements CountryHandlerInterface
     /**
      * Parses a country-specific phone number.
      *
-     * @param string $phoneNumber The phone number.
-     * @param string $areaCode    The parsed area code.
-     * @param string $localNumber The parsed local number.
-     * @param string $error       The error i parse failed.
+     * @param string      $phoneNumber The phone number.
+     * @param string|null $areaCode    The parsed area code.
+     * @param string|null $localNumber The parsed local number.
+     * @param string|null $error       The error if parse failed.
      *
      * @return bool True if parse was successful, false otherwise.
      */
-    public function parse($phoneNumber, &$areaCode, &$localNumber, &$error)
+    public function parse(string $phoneNumber, ?string &$areaCode, ?string &$localNumber, ?string &$error): bool
     {
         if (preg_match("/[^0-9()+-]/", $phoneNumber, $matches)) {
             $error = 'Phone number contains invalid character "' . $matches[0] . '".';
@@ -59,7 +59,7 @@ class SeCountryHandler implements CountryHandlerInterface
      *
      * @return string The formatted number.
      */
-    public function formatInternational($areaCode, $localNumber)
+    public function formatInternational(string $areaCode, string $localNumber): string
     {
         return substr($areaCode, 1) . ' ' . self::formatLocalNumber($localNumber);
     }
@@ -72,7 +72,7 @@ class SeCountryHandler implements CountryHandlerInterface
      *
      * @return string The formatted number.
      */
-    public function formatMSISDN($areaCode, $localNumber)
+    public function formatMSISDN(string $areaCode, string $localNumber): string
     {
         return substr($areaCode, 1) . $localNumber;
     }
@@ -85,7 +85,7 @@ class SeCountryHandler implements CountryHandlerInterface
      *
      * @return string The formatted number.
      */
-    public function formatNational($areaCode, $localNumber)
+    public function formatNational(string $areaCode, string $localNumber): string
     {
         return $areaCode . '-' . self::formatLocalNumber($localNumber);
     }
@@ -95,7 +95,7 @@ class SeCountryHandler implements CountryHandlerInterface
      *
      * @return string|null  ISO 3166 country code, two letters
      */
-    public function getISOCountryCode()
+    public function getISOCountryCode(): ?string
     {
         return 'se';
     }
@@ -107,7 +107,7 @@ class SeCountryHandler implements CountryHandlerInterface
      *
      * @return string The formatted local number.
      */
-    private static function formatLocalNumber($localNumber)
+    private static function formatLocalNumber(string $localNumber): string
     {
         switch (strlen($localNumber)) {
             case 5:
@@ -134,7 +134,7 @@ class SeCountryHandler implements CountryHandlerInterface
      *
      * @return int The length of the area code.
      */
-    private static function getAreaCodeLength($phoneNumber)
+    private static function getAreaCodeLength(string $phoneNumber): int
     {
         if (substr($phoneNumber, 0, 1) === '8') {
             return 1;

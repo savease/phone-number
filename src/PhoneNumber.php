@@ -32,7 +32,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return string The area code.
      */
-    public function getAreaCode()
+    public function getAreaCode(): string
     {
         return $this->areaCode;
     }
@@ -42,7 +42,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return int The country code.
      */
-    public function getCountryCode()
+    public function getCountryCode(): int
     {
         return $this->countryCode;
     }
@@ -52,7 +52,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return string The local number.
      */
-    public function getLocalNumber()
+    public function getLocalNumber(): string
     {
         return $this->localNumber;
     }
@@ -62,7 +62,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return string The phone number as an MSISDN.
      */
-    public function toMSISDN()
+    public function toMSISDN(): string
     {
         return $this->countryCode . $this->countryHandler->formatMSISDN($this->areaCode, $this->localNumber);
     }
@@ -72,7 +72,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return string The phone number in national format.
      */
-    public function toNationalFormat()
+    public function toNationalFormat(): string
     {
         return $this->countryHandler->formatNational($this->areaCode, $this->localNumber);
     }
@@ -82,7 +82,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return string The phone number as a string.
      */
-    public function __toString()
+    public function __toString(): string
     {
         return '+' . $this->countryCode . ' ' . $this->countryHandler->formatInternational($this->areaCode, $this->localNumber);
     }
@@ -94,7 +94,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return bool True if phone number is valid, false otherwise.
      */
-    public static function isValid($phoneNumber)
+    public static function isValid(string $phoneNumber): bool
     {
         return self::doParse($phoneNumber);
     }
@@ -108,7 +108,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @throws \InvalidArgumentException If parsing failed.
      */
-    public static function parse($phoneNumber)
+    public static function parse(string $phoneNumber): PhoneNumber
     {
         if (!self::doParse($phoneNumber, $countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode, $error)) {
             throw new \InvalidArgumentException($error);
@@ -124,7 +124,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return PhoneNumber|null The phone number or null if parsing failed.
      */
-    public static function tryParse($phoneNumber)
+    public static function tryParse(string $phoneNumber): ?PhoneNumber
     {
         if (!self::doParse($phoneNumber, $countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode)) {
             return null;
@@ -138,7 +138,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return string|null  ISO 3166 country code, two letters
      */
-    public function getISOCountryCode()
+    public function getISOCountryCode(): ?string
     {
         return $this->ISOCountryCode;
     }
@@ -150,9 +150,9 @@ class PhoneNumber implements PhoneNumberInterface
      * @param int                     $countryCode    The country code.
      * @param string                  $areaCode       The area code.
      * @param string                  $localNumber    The local number.
-     * @param string                  $ISOCountryCode ISO 3166 country code, two letters.
+     * @param string|null             $ISOCountryCode ISO 3166 country code, two letters.
      */
-    private function __construct(CountryHandlerInterface $countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode)
+    private function __construct(CountryHandlerInterface $countryHandler, int $countryCode, string $areaCode, string $localNumber, ?string $ISOCountryCode)
     {
         $this->countryHandler = $countryHandler;
         $this->countryCode = $countryCode;
@@ -174,7 +174,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return bool True if successful or false.
      */
-    private static function doParse($phoneNumber, CountryHandlerInterface &$countryHandler = null, &$countryCode = null, &$areaCode = null, &$localNumber = null, &$ISOCountryCode = null, &$error = null)
+    private static function doParse(string $phoneNumber, CountryHandlerInterface &$countryHandler = null, &$countryCode = null, &$areaCode = null, &$localNumber = null, &$ISOCountryCode = null, &$error = null): bool
     {
         $originalPhoneNumber = $phoneNumber;
         $phoneNumber = preg_replace('/\s+/', '', $phoneNumber);
@@ -212,7 +212,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return bool True if successful, false otherwise.
      */
-    private static function doParseCountryCode(&$phoneNumber, &$countryCode = null, &$error = null)
+    private static function doParseCountryCode(string &$phoneNumber, &$countryCode = null, &$error = null): bool
     {
         $hasCountryCode = false;
 
@@ -265,7 +265,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return CountryHandlerInterface The country handler.
      */
-    private static function getCountryHandler($countryCode)
+    private static function getCountryHandler(int $countryCode)
     {
         if (isset(self::COUNTRY_HANDLERS[$countryCode])) {
             $handlerClass = self::COUNTRY_HANDLERS[$countryCode];
