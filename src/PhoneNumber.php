@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Savea\PhoneNumber;
 
-use Savea\PhoneNumber\CountryHandlers\CountryHandlerInterface;
-use Savea\PhoneNumber\CountryHandlers\DefaultCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\AtCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\AuCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\ChCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\CountryHandlerInterface;
 use Savea\PhoneNumber\CountryHandlers\CzCountryHandler;
-use Savea\PhoneNumber\CountryHandlers\DkCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\DeCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\DefaultCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\DkCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\EeCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\FiCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\FrCountryHandler;
@@ -174,7 +174,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return bool True if successful or false.
      */
-    private static function doParse(string $phoneNumber, CountryHandlerInterface &$countryHandler = null, &$countryCode = null, &$areaCode = null, &$localNumber = null, &$ISOCountryCode = null, &$error = null): bool
+    private static function doParse(string $phoneNumber, CountryHandlerInterface &$countryHandler = null, ?int &$countryCode = null, ?string &$areaCode = null, ?string &$localNumber = null, ?string &$ISOCountryCode = null, ?string &$error = null): bool
     {
         $originalPhoneNumber = $phoneNumber;
         $phoneNumber = preg_replace('/\s+/', '', $phoneNumber);
@@ -212,7 +212,7 @@ class PhoneNumber implements PhoneNumberInterface
      *
      * @return bool True if successful, false otherwise.
      */
-    private static function doParseCountryCode(string &$phoneNumber, &$countryCode = null, &$error = null): bool
+    private static function doParseCountryCode(string &$phoneNumber, ?int &$countryCode = null, ?string &$error = null): bool
     {
         $hasCountryCode = false;
 
