@@ -91,6 +91,11 @@ class PhoneNumberTest extends TestCase
             ['+47 89 12 34 56', '+47 891 23 456', '891 23 456', '4789123456', 47, '', '89123456', 'no'],
             ['+4791234567', '+47 912 34 567', '912 34 567', '4791234567', 47, '', '91234567', 'no'],
 
+            // IN (+91)
+            ['+91-11-1234-5678', '+91 1112345678', '01112345678', '911112345678', 91, '', '1112345678', 'in'],
+            ['+91 (0135) 1234567', '+91 1351234567', '01351234567', '911351234567', 91, '', '1351234567', 'in'],
+            ['+917582123456', '+91 7582123456', '07582123456', '917582123456', 91, '', '7582123456', 'in'],
+
             // Countries that so far only differ from DefaultCountryHandler in that they contain information about their ISO 3166 country code.
             ['+31 01 23 45 67', '+31 01234567', '01234567', '3101234567', 31, '', '01234567', 'nl'],
             ['+33 01 23 45 67', '+33 01234567', '01234567', '3301234567', 33, '', '01234567', 'fr'],
@@ -151,6 +156,8 @@ class PhoneNumberTest extends TestCase
             ['+46 0480-12 34', 'Phone number "+46 0480-12 34" is invalid: Local part or phone number "1234" must be between 5 and 8 digits.'],
             ['+47*34567', 'Phone number "+47*34567" is invalid: Phone number contains invalid character "*".'],
             ['00472345678', 'Phone number "00472345678" is invalid: Local part of number "2345678" must be 8 digits.'],
+            ['+91*12345', 'Phone number "+91*12345" is invalid: Phone number contains invalid character "*".'],
+            ['+9112345', 'Phone number "+9112345" is invalid: Phone number must be 10 digits.'],
         ];
     }
 }

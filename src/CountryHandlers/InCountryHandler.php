@@ -1,0 +1,95 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Savea\PhoneNumber\CountryHandlers;
+
+/**
+ * Handler for IN country codes.
+ */
+class InCountryHandler implements CountryHandlerInterface
+{
+    /**
+     * Parses a country-specific phone number.
+     *
+     * @param string      $phoneNumber The phone number.
+     * @param string|null $areaCode    The parsed area code.
+     * @param string|null $localNumber The parsed local number.
+     * @param string|null $error       The error if parse failed.
+     *
+     * @return bool True if parse was successful, false otherwise.
+     */
+    public function parse(string $phoneNumber, ?string &$areaCode, ?string &$localNumber, ?string &$error): bool
+    {
+        if (preg_match("/[^0-9()+-]/", $phoneNumber, $matches)) {
+            $error = 'Phone number contains invalid character "' . $matches[0] . '".';
+
+            return false;
+        }
+
+        $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+
+        // Let's be nice and accept numbers with loading zeroes.
+        $phoneNumber = ltrim($phoneNumber, '0');
+
+        if (strlen($phoneNumber) !== 10) {
+            $error = 'Phone number must be 10 digits.';
+
+            return false;
+        }
+
+        $areaCode = '';
+        $localNumber = $phoneNumber;
+
+        return true;
+    }
+
+    /**
+     * Formats a phone number to international format.
+     *
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
+     *
+     * @return string The formatted number.
+     */
+    public function formatInternational(string $areaCode, string $localNumber): string
+    {
+        return $localNumber;
+    }
+
+    /**
+     * Formats a phone number to MSISDN format.
+     *
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
+     *
+     * @return string The formatted number.
+     */
+    public function formatMSISDN(string $areaCode, string $localNumber): string
+    {
+        return substr($areaCode, 1) . $localNumber;
+    }
+
+    /**
+     * Formats a phone number to national format.
+     *
+     * @param string $areaCode    The area code.
+     * @param string $localNumber The local number.
+     *
+     * @return string The formatted number.
+     */
+    public function formatNational(string $areaCode, string $localNumber): string
+    {
+        return '0' . $localNumber;
+    }
+
+    /**
+     * Returns the ISO 3166 country code, two letters
+     *
+     * @return string|null  ISO 3166 country code, two letters
+     */
+    public function getISOCountryCode(): ?string
+    {
+        return 'in';
+    }
+}

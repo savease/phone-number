@@ -16,6 +16,7 @@ use Savea\PhoneNumber\CountryHandlers\EeCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\FiCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\FrCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\GbCountryHandler;
+use Savea\PhoneNumber\CountryHandlers\InCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\LvCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\NlCountryHandler;
 use Savea\PhoneNumber\CountryHandlers\NoCountryHandler;
@@ -320,5 +321,6 @@ class PhoneNumber implements PhoneNumberInterface
         47  => NoCountryHandler::class,
         48  => PlCountryHandler::class,
         49  => DeCountryHandler::class,
+        91  => InCountryHandler::class,
     ];
 }
