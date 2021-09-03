@@ -49,6 +49,16 @@ class PhoneNumber implements PhoneNumberInterface
     }
 
     /**
+     * Returns the ISO 3166 country code, two letters
+     *
+     * @return string|null  ISO 3166 country code, two letters
+     */
+    public function getISOCountryCode(): ?string
+    {
+        return $this->ISOCountryCode;
+    }
+
+    /**
      * Returns the local number.
      *
      * @return string The local number.
@@ -56,6 +66,26 @@ class PhoneNumber implements PhoneNumberInterface
     public function getLocalNumber(): string
     {
         return $this->localNumber;
+    }
+
+    /**
+     * Returns the phone number in compact format, e.g. +46701740605
+     *
+     * @return string The phone number in compact format.
+     */
+    public function toCompactFormat(): string
+    {
+        return '+' . $this->toMSISDN();
+    }
+
+    /**
+     * Returns the phone number in international format, e.g. +46 70 174 06 05
+     *
+     * @return string The phone number in international format.
+     */
+    public function toInternationalFormat(): string
+    {
+        return '+' . $this->countryCode . ' ' . $this->countryHandler->formatInternational($this->areaCode, $this->localNumber);
     }
 
     /**
@@ -69,7 +99,7 @@ class PhoneNumber implements PhoneNumberInterface
     }
 
     /**
-     * Returns the phone number in national format.
+     * Returns the phone number in national format, e.g. 070-174 06 05
      *
      * @return string The phone number in national format.
      */
@@ -85,7 +115,7 @@ class PhoneNumber implements PhoneNumberInterface
      */
     public function __toString(): string
     {
-        return '+' . $this->countryCode . ' ' . $this->countryHandler->formatInternational($this->areaCode, $this->localNumber);
+        return $this->toInternationalFormat();
     }
 
     /**
@@ -132,16 +162,6 @@ class PhoneNumber implements PhoneNumberInterface
         }
 
         return new self($countryHandler, $countryCode, $areaCode, $localNumber, $ISOCountryCode);
-    }
-
-    /**
-     * Returns the ISO 3166 country code, two letters
-     *
-     * @return string|null  ISO 3166 country code, two letters
-     */
-    public function getISOCountryCode(): ?string
-    {
-        return $this->ISOCountryCode;
     }
 
     /**
